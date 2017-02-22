@@ -2,19 +2,32 @@ import static java.lang.Math.abs;
 
 import java.util.Arrays;
 
+import edu.princeton.cs.algs4.Queue;
+import edu.princeton.cs.algs4.StdRandom;
+
 public final class Board {
 
 	private final int[][] blocks;
-
 	private final int dimension;
+	private int emptyRow;
+	private int emptyColumn;
 
 	// construct a board from an n-by-n array of blocks
 	// (where blocks[i][j] = block in row i, column j)
 	public Board(int[][] blocks) {
 		if (blocks == null)
 			throw new NullPointerException("blocks can't be null");
-		this.blocks = Arrays.copyOf(blocks, blocks.length);
 		this.dimension = blocks.length;
+		this.blocks = new int[dimension][dimension];
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				this.blocks[i][j] = blocks[i][j];
+				if (!isNotEmptyBlock(i, j)) {
+					emptyRow = i;
+					emptyColumn = j;
+				}
+			}
+		}
 	}
 
 	// board dimension n
@@ -61,6 +74,10 @@ public final class Board {
 		return blocks[i][j] != 0;
 	}
 
+	private boolean isNotEmptyBlock(int[][] blocks, int i, int j) {
+		return blocks[i][j] != 0;
+	}
+
 	// is this board the goal board?
 	public boolean isGoal() {
 		for (int i = 0; i < dimension; i++) {
@@ -78,7 +95,29 @@ public final class Board {
 
 	// a board that is obtained by exchanging any pair of blocks
 	public Board twin() {
-		return null;
+		Board twin = new Board(this.blocks);
+		boolean exchange = false;
+		while (!exchange) {
+			int i = StdRandom.uniform(dimension);
+			int j = StdRandom.uniform(dimension);
+			int ej = j;
+			if (j == dimension - 1) {
+				--ej;
+			} else {
+				++ej;
+			}
+			if (isNotEmptyBlock(twin.blocks, i, j) && isNotEmptyBlock(twin.blocks, i, ej)) {
+				swap(twin.blocks, i, j, ej);
+				exchange = true;
+			}
+		}
+		return twin;
+	}
+
+	private void swap(int[][] blocks, int i, int j, int ej) {
+		int temp = blocks[i][j];
+		blocks[i][j] = blocks[i][ej];
+		blocks[i][ej] = temp;
 	}
 
 	@Override
@@ -96,7 +135,10 @@ public final class Board {
 
 	// all neighboring boards
 	public Iterable<Board> neighbors() {
-		return null;
+
+		Queue<Board> neighboards = new Queue<>();
+
+		return neighboards;
 	}
 
 	@Override
