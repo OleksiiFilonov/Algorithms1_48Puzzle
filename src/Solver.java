@@ -1,8 +1,9 @@
 
 public final class Solver {
-	// find a solution to the initial board (using the A* algorithm)
+
 	private final Board board;
 
+	// find a solution to the initial board (using the A* algorithm)
 	public Solver(final Board initial) {
 		if (initial == null)
 			throw new NullPointerException("Board can't be null");

@@ -1,3 +1,5 @@
+import static java.lang.Math.abs;
+
 import java.util.Arrays;
 
 public final class Board {
@@ -22,15 +24,15 @@ public final class Board {
 
 	// number of blocks out of place
 	public int hamming() {
-		int counter = 0;
+		int priority = 0;
 		for (int i = 0; i < dimension; i++) {
 			for (int j = 0; j < dimension; j++) {
-				if (blocks[i][j] != 0 && isBlockInPlace(i, j)) {
-					counter++;
+				if (isNotEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
+					priority++;
 				}
 			}
 		}
-		return counter;
+		return priority;
 	}
 
 	private boolean isBlockInPlace(int i, int j) {
@@ -39,7 +41,24 @@ public final class Board {
 
 	// sum of Manhattan distances between blocks and goal
 	public int manhattan() {
-		return -1;
+		int priority = 0;
+		for (int i = 0; i < dimension; i++) {
+			for (int j = 0; j < dimension; j++) {
+				if (isNotEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
+					int value = blocks[i][j];
+					int expectedRow = (value - 1) / dimension;
+					int expectedColumn = value % dimension - 1;
+					if (expectedColumn == -1)
+						expectedColumn = dimension - 1;
+					priority += abs(i - expectedRow) + abs(j - expectedColumn);
+				}
+			}
+		}
+		return priority;
+	}
+
+	private boolean isNotEmptyBlock(int i, int j) {
+		return blocks[i][j] != 0;
 	}
 
 	// is this board the goal board?
@@ -51,7 +70,7 @@ public final class Board {
 			}
 		}
 		for (int j = 0; j < dimension - 1; j++) {
-			if (isBlockInPlace(dimension - 1, j))
+			if (!isBlockInPlace(dimension - 1, j))
 				return false;
 		}
 		return true;
@@ -105,5 +124,6 @@ public final class Board {
 			}
 			System.out.println();
 		}
+		System.out.println(2 % 3);
 	}
 }
