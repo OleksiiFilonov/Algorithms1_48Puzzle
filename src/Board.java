@@ -22,7 +22,7 @@ public final class Board {
 		for (int i = 0; i < dimension; i++) {
 			for (int j = 0; j < dimension; j++) {
 				this.blocks[i][j] = blocks[i][j];
-				if (!isNotEmptyBlock(i, j)) {
+				if (isEmptyBlock(i, j)) {
 					emptyRow = i;
 					emptyColumn = j;
 				}
@@ -40,7 +40,7 @@ public final class Board {
 		int priority = 0;
 		for (int i = 0; i < dimension; i++) {
 			for (int j = 0; j < dimension; j++) {
-				if (isNotEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
+				if (!isEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
 					priority++;
 				}
 			}
@@ -57,7 +57,7 @@ public final class Board {
 		int priority = 0;
 		for (int i = 0; i < dimension; i++) {
 			for (int j = 0; j < dimension; j++) {
-				if (isNotEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
+				if (!isEmptyBlock(i, j) && !isBlockInPlace(i, j)) {
 					int value = blocks[i][j];
 					int expectedRow = (value - 1) / dimension;
 					int expectedColumn = value % dimension - 1;
@@ -70,8 +70,8 @@ public final class Board {
 		return priority;
 	}
 
-	private boolean isNotEmptyBlock(int i, int j) {
-		return blocks[i][j] != 0;
+	private boolean isEmptyBlock(int i, int j) {
+		return blocks[i][j] == 0;
 	}
 
 	private boolean isNotEmptyBlock(int[][] blocks, int i, int j) {
@@ -106,18 +106,23 @@ public final class Board {
 			} else {
 				++ej;
 			}
-			if (isNotEmptyBlock(twin.blocks, i, j) && isNotEmptyBlock(twin.blocks, i, ej)) {
-				swap(twin.blocks, i, j, ej);
+			int[][] twinBlocks = twin.blocks;
+			if (isNotEmptyBlock(twinBlocks, i, j) && isNotEmptyBlock(twinBlocks, i, ej)) {
+				swap(twinBlocks, i, j, i, ej);
 				exchange = true;
 			}
 		}
 		return twin;
 	}
 
-	private void swap(int[][] blocks, int i, int j, int ej) {
+	private void swap(int i, int j, int ei, int ej) {
+		swap(this.blocks, i, j, ei, ej);
+	}
+
+	private void swap(int[][] blocks, int i, int j, int ei, int ej) {
 		int temp = blocks[i][j];
-		blocks[i][j] = blocks[i][ej];
-		blocks[i][ej] = temp;
+		blocks[i][j] = blocks[ei][ej];
+		blocks[ei][ej] = temp;
 	}
 
 	@Override
@@ -137,7 +142,30 @@ public final class Board {
 	public Iterable<Board> neighbors() {
 
 		Queue<Board> neighboards = new Queue<>();
-
+		// shift empty block to left
+		if (emptyColumn > 0) {
+			Board leftBoard = new Board(blocks);
+			leftBoard.swap(emptyRow, emptyColumn - 1, emptyRow, emptyColumn);
+			neighboards.enqueue(leftBoard);
+		}
+		// shift empty block to top
+		if (emptyRow > 0) {
+			Board topBoard = new Board(blocks);
+			topBoard.swap(emptyRow - 1, emptyColumn, emptyRow, emptyColumn);
+			neighboards.enqueue(topBoard);
+		}
+		// shift empty block to right
+		if (emptyColumn < dimension - 1) {
+			Board rightBoard = new Board(blocks);
+			rightBoard.swap(emptyRow, emptyColumn + 1, emptyRow, emptyColumn);
+			neighboards.enqueue(rightBoard);
+		}
+		// shift empty block to bottom
+		if (emptyRow < dimension - 1) {
+			Board bottomBoard = new Board(blocks);
+			bottomBoard.swap(emptyRow + 1, emptyColumn, emptyRow, emptyColumn);
+			neighboards.enqueue(bottomBoard);
+		}
 		return neighboards;
 	}
 
@@ -158,7 +186,7 @@ public final class Board {
 
 	// unit tests (not graded)
 	public static void main(String[] args) {
-		int[][] test = new int[][] { { 1, 2 }, { 3, 4 }, { 5, 6 } };
+		int[][] test = new int[][] { { 1, 2 }, { 3, 4 }, { 15, 16 } };
 		int[][] testCopy = Arrays.copyOf(test, test.length);
 		for (int i = 0; i < testCopy.length; i++) {
 			for (int j = 0; j < testCopy[i].length; j++) {
