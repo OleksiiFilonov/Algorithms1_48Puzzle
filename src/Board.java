@@ -14,14 +14,14 @@ public final class Board {
 
 	// construct a board from an n-by-n array of blocks
 	// (where blocks[i][j] = block in row i, column j)
-	public Board(int[][] blocks) {
-		if (blocks == null)
+	public Board(int[][] inputBlocks) {
+		if (inputBlocks == null)
 			throw new NullPointerException("blocks can't be null");
-		this.dimension = blocks.length;
+		this.dimension = inputBlocks.length;
 		this.blocks = new int[dimension][dimension];
 		for (int i = 0; i < dimension; i++) {
 			for (int j = 0; j < dimension; j++) {
-				this.blocks[i][j] = blocks[i][j];
+				this.blocks[i][j] = inputBlocks[i][j];
 				if (isEmptyBlock(i, j)) {
 					emptyRow = i;
 					emptyColumn = j;
@@ -108,7 +108,7 @@ public final class Board {
 			}
 			int[][] twinBlocks = twin.blocks;
 			if (isNotEmptyBlock(twinBlocks, i, j) && isNotEmptyBlock(twinBlocks, i, ej)) {
-				swap(twinBlocks, i, j, i, ej);
+				twin.swap(i, j, i, ej);
 				exchange = true;
 			}
 		}
@@ -116,13 +116,9 @@ public final class Board {
 	}
 
 	private void swap(int i, int j, int ei, int ej) {
-		swap(this.blocks, i, j, ei, ej);
-	}
-
-	private void swap(int[][] blocks, int i, int j, int ei, int ej) {
-		int temp = blocks[i][j];
-		blocks[i][j] = blocks[ei][ej];
-		blocks[ei][ej] = temp;
+		int temp = this.blocks[i][j];
+		this.blocks[i][j] = this.blocks[ei][ej];
+		this.blocks[ei][ej] = temp;
 	}
 
 	@Override
@@ -135,7 +131,7 @@ public final class Board {
 		if (other.getClass() != this.getClass())
 			return false;
 		Board that = (Board) other;
-		return (this.dimension == that.dimension) && (Arrays.equals(this.blocks, that.blocks));
+		return Arrays.deepEquals(this.blocks, that.blocks);
 	}
 
 	// all neighboring boards
